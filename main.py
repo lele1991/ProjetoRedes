@@ -93,7 +93,7 @@ def com_serial():
     time.sleep(1)
 
     # endframe
-    arduino.write(b'\x04')
+    arduino.write(b'0x04')
     time.sleep(2)
 
     RECIVED_DATA = arduino.read(11).hex()
@@ -127,9 +127,9 @@ if __name__ == "__main__":
         print(frame.cmd)
         checksum_recived = True
         if (checksum_recived):
-            if (frame.cmd == b'\x54'):
+            if (frame.cmd == b'0x54'):
                 print("Temperatura: ")
                 print(struct.unpack('>f', data_order)[0])
-            elif (frame.cmd == b'\x48'):
-                print('Umidade: ')
+            elif (frame.cmd == b'0x48'):
+                print('Humidade: ')
                 print(struct.unpack('>f', data_order)[0])
