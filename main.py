@@ -1,3 +1,6 @@
+ # coding=utf-8
+    
+# -*- coding: utf-8 -*-
 from dataclasses import dataclass
 from random import seed, randint
 import ctypes
@@ -6,8 +9,7 @@ import binascii
 import serial
 import time
 
-# -*- coding: utf-8 -*-
-# Dados da comunicação
+# Dados da comunicacao
 DEVICE = '/dev/ttyUSB0'
 BAUD = 9600
 # RECIVED_DATA = 'd8a56d3cff3333e741f525'
