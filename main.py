@@ -74,7 +74,7 @@ def com_serial():
     arduino.flushInput()
     arduino.flushOutput()
     time.sleep(2)
-    print('Ho')
+
     # while True:
     # N_REQ - 4 bytes
     arduino.write(frame.n_req)
