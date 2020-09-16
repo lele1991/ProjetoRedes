@@ -107,7 +107,8 @@ def com_serial():
 
 if __name__ == "__main__":
     n_req_tx = hex(random_number())
-    cmd_tx = struct.pack('B', 72)
+    cmd_tx = struct.pack('B', 84)          #temperatura
+    #cmd_tx = struct.pack('B', 72)           #humidade
     data_tx = struct.pack('I', 0)
 
     checksum_tx = checksum_calc(n_req_tx, cmd_tx, data_tx)
@@ -125,7 +126,7 @@ if __name__ == "__main__":
             recived_data)
 
         # print(checksum_calc(n_req_order, cmd_order, data_order))
-        print(frame.cmd)
+        #print(frame.cmd)
         checksum_recived = True
         if (checksum_recived):
             if (frame.cmd == b'\x54'):
