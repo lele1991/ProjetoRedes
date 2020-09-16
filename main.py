@@ -132,5 +132,5 @@ if __name__ == "__main__":
                 print("Temperatura: ")
                 print(struct.unpack('>f', data_order)[0])
             elif (frame.cmd == b'\x48'):
-                print('Umidade: ')
+                print('Humidade: ')
                 print(struct.unpack('>f', data_order)[0])
