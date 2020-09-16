@@ -7,7 +7,7 @@ import serial
 import time
 
 # Dados da comunicação
-DEVICE = '/dev/ttyUSB0'
+DEVICE = '/dev/t/dev/ttyACM0'
 BAUD = 9600
 # RECIVED_DATA = 'd8a56d3cff3333e741f525'
 arduino = serial.Serial(DEVICE, BAUD)
