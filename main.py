@@ -2,7 +2,7 @@ import serial
 import time
 
 # Dados da comunicação
-DEVICE = '/dev/ttyUSB0'
+DEVICE = '/dev/ttyACM0'
 BAUD = 9600
 
 
