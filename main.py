@@ -120,7 +120,7 @@ if __name__ == "__main__":
     # print(frame)
     # com_serial()
     while True:
-        print(frame)
+        # print(frame)
         recived_data = com_serial()
         n_req_order, cmd_order, data_order, check_order = ordered_data(
             recived_data)
