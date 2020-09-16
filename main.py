@@ -99,7 +99,7 @@ def com_serial():
 
     RECIVED_DATA = arduino.read(11).hex()
     # RECIVED_DATA = arduino.readline()
-    print(RECIVED_DATA)
+    # print(RECIVED_DATA)
     # RECIVED_DATA = 0
     time.sleep(2)
     return RECIVED_DATA
@@ -117,7 +117,7 @@ if __name__ == "__main__":
 
     checksum_tx = binascii.unhexlify(checksum_tx.strip('0x'))
     frame = Data_tx(n_req_tx, cmd_tx, data_tx, checksum_tx)
-    print(frame)
+    # print(frame)
     # com_serial()
     while True:
         print(frame)
