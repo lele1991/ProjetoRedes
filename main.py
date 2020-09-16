@@ -6,6 +6,7 @@ import binascii
 import serial
 import time
 
+# -*- coding: utf-8 -*-
 # Dados da comunicação
 DEVICE = '/dev/ttyUSB0'
 BAUD = 9600
