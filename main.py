@@ -74,7 +74,7 @@ def com_serial():
     arduino.flushInput()
     arduino.flushOutput()
     time.sleep(2)
-    print('Ho')
+    # print('Ho')
     # while True:
     # N_REQ - 4 bytes
     arduino.write(frame.n_req)
@@ -91,7 +91,6 @@ def com_serial():
     # checksum - 2 bytes
     arduino.write(frame.checksum)
     time.sleep(1)
-    # time.sleep(1)
 
     # endframe
     arduino.write(b'\x04')
