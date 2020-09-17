@@ -27,7 +27,7 @@ class Package:
 def com_serial():
     arduino.flushInput()
     arduino.flushOutput()
-    time.sleep(2)
+    time.sleep(1)
 
     # while True:
     # N_REQ - 4 bytes
@@ -49,13 +49,13 @@ def com_serial():
 
     # endframe
     arduino.write(ENDFRAME)
-    time.sleep(2)
+    time.sleep(1)
 
     recived_data = arduino.read(11).hex()
     # RECIVED_DATA = arduino.readline()
     # print(recived_data)
     # recived_data = 0
-    time.sleep(2)
+    time.sleep(1)
     return recived_data
 
 
