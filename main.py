@@ -32,24 +32,23 @@ def com_serial():
     # while True:
     # N_REQ - 4 bytes
     arduino.write(frame.n_req)
-    time.sleep(2)
+    time.sleep(0.5)
 
     # cmd - 1 byte (54 ou 48)
     arduino.write(frame.cmd)
-    time.sleep(1)
+    time.sleep(0.5)
 
     # data - 4 bytes
     arduino.write(frame.data)
-    time.sleep(1)
+    time.sleep(0.5)
 
     # checksum - 2 bytes
     arduino.write(frame.checksum)
-    time.sleep(1)
-    # time.sleep(1)
+    time.sleep(0.5)
 
     # endframe
     arduino.write(ENDFRAME)
-    time.sleep(1)
+    time.sleep(0.5)
 
     recived_data = arduino.read(11).hex()
     # RECIVED_DATA = arduino.readline()
