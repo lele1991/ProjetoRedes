@@ -27,7 +27,7 @@ class Package:
 def com_serial():
     arduino.flushInput()
     arduino.flushOutput()
-    time.sleep(1)
+    time.sleep(2)
 
     # while True:
     # N_REQ - 4 bytes
@@ -54,7 +54,7 @@ def com_serial():
     # RECIVED_DATA = arduino.readline()
     # print(recived_data)
     # recived_data = 0
-    time.sleep(1)
+    time.sleep(2)
     return recived_data
 
 
@@ -100,7 +100,8 @@ def ordered_data(recived_data):
 if __name__ == "__main__":
     while True:
         n_req = hex(random_number())
-        cmd = hex(TEMPERATURE)
+        #mudar aqui
+        cmd = hex(HUMIDITY)
         data = hex(0)
         checksum = checksum_calc(n_req, cmd, data)
 
