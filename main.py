@@ -1,73 +1,27 @@
-from dataclasses import dataclass
-from random import seed, randint
+import random
 import ctypes
-import struct
-import binascii
+from datetime import datetime
+from dataclasses import dataclass
 import serial
 import time
+import struct
 
-# Dados da comunicação
+# DEVICE = '/dev/ttyUSB0'
 DEVICE = '/dev/ttyACM0'
 BAUD = 9600
-# RECIVED_DATA = 'd8a56d3cff3333e741f525'
+TEMPERATURE = 84
+HUMIDITY = 72
+ENDFRAME = b'\x04'
+
 arduino = serial.Serial(DEVICE, BAUD)
 
 
 @dataclass
-class Data_tx:
+class Package:
     n_req: ctypes.c_uint32
     cmd: ctypes.c_uint8
     data: ctypes.c_uint32
     checksum: ctypes.c_uint16
-
-
-def random_number():
-    seed(4)
-
-    value = randint(1, 4294967296-1)
-    # print(value)
-    return value
-
-
-def checksum_calc(n_req, cmd, data):
-    n_req_unpacked = int(n_req, 0)
-    cmd_unpacked = struct.unpack('B', cmd)[0]
-    data_unpacked = struct.unpack('I', data)[0]
-
-    # print(n_req_unpacked, cmd_unpacked, data_unpacked)
-    check = (n_req_unpacked + cmd_unpacked + data_unpacked)
-    checksum = hex((check ^ 0xffffff))[6:]
-    return checksum
-
-
-def split_frame(data):
-    data_splited = []
-    for i in range(0, len(data)):
-        data_splited.append(hex(data[i]))
-    return data_splited
-
-
-def ordered_data(recived_data):
-    orderless_data = recived_data.strip('')
-    n = 2
-    orderless_data = [orderless_data[i:i+n]
-                      for i in range(0, len(orderless_data), n)]
-
-    n_req_order = ''.join((orderless_data[:4])[::-1])
-    cmd_order = ''.join((orderless_data[4:5])[::-1])
-    data_order = ''.join((orderless_data[5:9])[::-1])
-    check_order = ''.join((orderless_data[9:11])[::-1])
-
-    # print(int(hex(int(data_order, 16)), 0))
-
-    n_req_order = hex(int(n_req_order, 16))
-    cmd_order = struct.pack('>B', int(cmd_order, 16))
-    data_order = struct.pack('>I', int(data_order, 16))
-    check_order = struct.pack('>H', int(check_order, 16))
-
-    # print(data_order)
-
-    return n_req_order, cmd_order, data_order, check_order
 
 
 def com_serial():
@@ -94,44 +48,91 @@ def com_serial():
     # time.sleep(1)
 
     # endframe
-    arduino.write(b'\x04')
+    arduino.write(ENDFRAME)
     time.sleep(2)
 
-    RECIVED_DATA = arduino.read(11).hex()
+    recived_data = arduino.read(11).hex()
     # RECIVED_DATA = arduino.readline()
-    # print(RECIVED_DATA)
-    # RECIVED_DATA = 0
+    # print(recived_data)
+    # recived_data = 0
     time.sleep(2)
-    return RECIVED_DATA
+    return recived_data
+
+
+def random_number():
+    random.seed(datetime.now())
+
+    value = random.randint(1, 4294967296-2)
+    # print((value))
+    return value
+
+
+def checksum_calc(n_req, cmd, data):
+    n_req_int = int(n_req, 16)
+    cmd_int = int(cmd, 16)
+    data_int = int(data, 16)
+
+    check = (n_req_int + cmd_int + data_int)
+    checksum = int(hex((check ^ 0xffffff))[6:], 16)
+    return hex(checksum)
+
+
+def ordered_data(recived_data):
+    orderless_data = recived_data.strip('')
+    n = 2
+    orderless_data = [orderless_data[i:i+n]
+                      for i in range(0, len(orderless_data), n)]
+
+    n_req_order = ''.join((orderless_data[:4])[::-1])
+    cmd_order = ''.join((orderless_data[4:5])[::-1])
+    data_order = ''.join((orderless_data[5:9])[::-1])
+    check_order = ''.join((orderless_data[9:11])[::-1])
+
+    # print(n_req_order, cmd_order, data_order, check_order)
+
+    n_req_order = hex(int(n_req_order, 16))
+    cmd_order = hex(int(cmd_order, 16))
+    data_order = hex(int(data_order, 16))
+    check_order = hex(int(check_order, 16))
+
+    return n_req_order, cmd_order, data_order, check_order
 
 
 if __name__ == "__main__":
-    n_req_tx = hex(random_number())
-    cmd_tx = struct.pack('B', 84)          #temperatura
-    #cmd_tx = struct.pack('B', 72)           #humidade
-    data_tx = struct.pack('I', 0)
-
-    checksum_tx = checksum_calc(n_req_tx, cmd_tx, data_tx)
-
-    n_req_tx = binascii.unhexlify(n_req_tx.strip('0x'))
-
-    checksum_tx = binascii.unhexlify(checksum_tx.strip('0x'))
-    frame = Data_tx(n_req_tx, cmd_tx, data_tx, checksum_tx)
-    # print(frame)
-    # com_serial()
     while True:
-        # print(frame)
-        recived_data = com_serial()
-        n_req_order, cmd_order, data_order, check_order = ordered_data(
-            recived_data)
+        n_req = hex(random_number())
+        cmd = hex(TEMPERATURE)
+        data = hex(0)
+        checksum = checksum_calc(n_req, cmd, data)
 
-        # print(checksum_calc(n_req_order, cmd_order, data_order))
-        #print(frame.cmd)
-        checksum_recived = True
-        if (checksum_recived):
-            if (frame.cmd == b'\x54'):
-                print("Temperatura: ")
-                print(struct.unpack('>f', data_order)[0])
-            elif (frame.cmd == b'\x48'):
-                print('Humidade: ')
-                print(struct.unpack('>f', data_order)[0])
+        # print(n_req, cmd, data, checksum)
+
+        n_req_packed = struct.pack('>I', int(n_req, 16))
+        cmd_packed = struct.pack('B', int(cmd, 16))
+        data_packed = struct.pack('>I', int(data, 16))
+        checksum_packed = struct.pack('>H', int(checksum, 16))
+
+        frame = Package(n_req_packed, cmd_packed, data_packed, checksum_packed)
+        # print(frame)
+        recived_frame = com_serial()
+        # print(recived_frame)
+
+        n_req_order, cmd_order, data_order, check_order = ordered_data(
+            recived_frame)
+
+        checksum_recived = checksum_calc(n_req_order, cmd_order, data_order)
+        # print(check_order, checksum_recived)
+
+        mesure_float = struct.pack('>I', int(data_order, 16))
+
+        if (checksum_recived == check_order):
+            if(cmd == hex(TEMPERATURE)):
+                print('Temperatura: {} °C "'.format(
+                    struct.unpack('>f', mesure_float)[0]))
+            elif (cmd == hex(HUMIDITY)):
+                print('Umidade: {} % "'.format(
+                    struct.unpack('>f', mesure_float)[0]))
+            else:
+                print('Comando não encontrado')
+        else:
+            print('Erro no Checksum recebido!')

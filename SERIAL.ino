@@ -1,15 +1,19 @@
 #include "DHT.h"      
 
 #define DHTPIN A1                         //DHT pino
-#define DHTTYPE DHT11 
+#define DHTTYPE DHT11
 
 DHT dht(DHTPIN, DHTTYPE);
 
 uint8_t end_com = 0;
-uint32_t inputString[11];
-int countInput = 0;
-bool stringComplete = false;
+uint32_t input_data[11];
+int count_input = 0;
+bool data_complete = false;
 unsigned int checksum_calc = 0;
+
+// Definição dos leds de vizualização
+int temperature_led = 7;    // Amarelo
+int humidity_led = 6;         // Verde 
 
 /* Estrutura de dados para o protocolo de comunicação */
 typedef struct {
@@ -21,23 +25,30 @@ typedef struct {
 
 
 uint32_t temperatura () {
-   float temp = 28.9; 
-//   float temp = dht.readTemperature();
+//   float temp = 28.9; 
+   float temp = dht.readTemperature();
   uint32_t *temperatura = (uint32_t *) &temp; 
+  digitalWrite(temperature_led, HIGH);
+  digitalWrite(humidity_led, LOW);
   return  *temperatura;
   
 }
 
 uint32_t umidade () {
-  float umi = 20.5; 
-//   float umi = dht.readHumidity(); 
+//  float umi = 20.5; 
+   float umi = dht.readHumidity(); 
   uint32_t *umidade = (uint32_t *) &umi; 
+
+  digitalWrite(humidity_led, HIGH);
+  digitalWrite(temperature_led, LOW);
   return  *umidade;
 }
 
 void setup() {
   Serial.begin(9600);
-//  dht.begin();
+  pinMode(temperature_led, OUTPUT);
+  pinMode(humidity_led, OUTPUT);  
+  dht.begin();
 }
 
 
@@ -45,32 +56,33 @@ void loop() {
   
   COM frame;
   
-  if (stringComplete) {
+  if (data_complete) {
     unsigned long nreq_reciv = 0;
     //    byte cdm_ = 0;
     unsigned long data_reciv = 0;
     unsigned int checksum_reciv = 0;
 
-    unsigned long frame_1 = (unsigned long)(inputString[0] );
-    unsigned long frame_2 = (unsigned long)(inputString[1] );
-    unsigned long frame_3 = (unsigned long)(inputString[2] );
-    unsigned long frame_4 = (unsigned long)(inputString[3] );
+    unsigned long frame_1 = (unsigned long)(input_data[0] );
+    unsigned long frame_2 = (unsigned long)(input_data[1] );
+    unsigned long frame_3 = (unsigned long)(input_data[2] );
+    unsigned long frame_4 = (unsigned long)(input_data[3] );
     nreq_reciv = (frame_1 << 24) | (frame_2 << 16) | (frame_3 << 8) | frame_4;
 
-    byte frame_5 = (byte)inputString[4] ;
+    byte frame_5 = (byte)input_data[4] ;
 
-    unsigned long frame_6 = (unsigned long)(inputString[5] );
-    unsigned long frame_7 = (unsigned long)(inputString[6] );
-    unsigned long frame_8 = (unsigned long)(inputString[7] );
-    unsigned long frame_9 = (unsigned long)(inputString[8] );
+    unsigned long frame_6 = (unsigned long)(input_data[5] );
+    unsigned long frame_7 = (unsigned long)(input_data[6] );
+    unsigned long frame_8 = (unsigned long)(input_data[7] );
+    unsigned long frame_9 = (unsigned long)(input_data[8] );
     data_reciv = (frame_6 << 24) | (frame_7 << 16) | (frame_8 << 8) | frame_9;
 
-    unsigned int frame_10 = (unsigned int)(inputString[9] );
-    unsigned int frame_11 = (unsigned int)(inputString[10] );
+    unsigned int frame_10 = (unsigned int)(input_data[9] );
+    unsigned int frame_11 = (unsigned int)(input_data[10] );
 
 
     checksum_reciv = (frame_10 << 8) | frame_11;
     checksum_calc = ~(nreq_reciv + frame_5 + data_reciv);
+    
     //    Serial.println(checksum_calc, HEX);
     if (checksum_calc == checksum_reciv) {
 
@@ -78,9 +90,9 @@ void loop() {
 
       frame.cmd = 0xff;
 
-      if (inputString[4] == 0x54) {
+      if (input_data[4] == 0x54) {
         frame.data = temperatura();
-      } else if (inputString[4] == 0x48) {
+      } else if (input_data[4] == 0x48) {
         frame.data = umidade();
       } else {
         Serial.println("Este comando não existe");
@@ -90,7 +102,7 @@ void loop() {
 
       sum = frame.n_req + frame.data + frame.cmd;
       frame.checksum = ~sum;
-      //
+//      //
 //            Serial.println(frame.n_req, HEX);
 //            Serial.println(frame.cmd, HEX);
 //            Serial.println(frame.data, HEX);
@@ -108,8 +120,8 @@ void loop() {
     }
 
     // clear the string:
-    countInput = 0;
-    stringComplete = false;
+    count_input = 0;
+    data_complete = false;
   }
 }
 
@@ -119,10 +131,10 @@ void serialEvent() {
     end_com = (uint8_t)Serial.read();
 //        Serial.println(end_com, HEX);
     if (end_com == 0x04) {
-      stringComplete = true;
+      data_complete = true;
     } else {
-      inputString[countInput] = end_com;
+      input_data[count_input] = end_com;
     }
-    countInput++;
+    count_input++;
   }
 }
