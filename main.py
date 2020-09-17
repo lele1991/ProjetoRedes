@@ -32,7 +32,7 @@ def com_serial():
     # while True:
     # N_REQ - 4 bytes
     arduino.write(frame.n_req)
-    time.sleep(1)
+    time.sleep(2)
 
     # cmd - 1 byte (54 ou 48)
     arduino.write(frame.cmd)
