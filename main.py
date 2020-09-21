@@ -9,8 +9,8 @@ import paho.mqtt.client as paho
 import ssl
 
 
-DEVICE = '/dev/ttyUSB0'
-# DEVICE = '/dev/ttyACM0'
+#DEVICE = '/dev/ttyUSB0'
+DEVICE = '/dev/ttyACM0'
 BAUD = 9600
 TEMPERATURE = 84
 HUMIDITY = 72
