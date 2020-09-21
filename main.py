@@ -5,13 +5,21 @@ from dataclasses import dataclass
 import serial
 import time
 import struct
+import paho.mqtt.client as paho
+import ssl
 
-# DEVICE = '/dev/ttyUSB0'
-DEVICE = '/dev/ttyACM0'
+
+DEVICE = '/dev/ttyUSB0'
+# DEVICE = '/dev/ttyACM0'
 BAUD = 9600
 TEMPERATURE = 84
 HUMIDITY = 72
 ENDFRAME = b'\x04'
+AWS_HOST = "a25kfjnhv6wcrv-ats.iot.us-east-1.amazonaws.com"
+AWS_PORT = 8883
+CA_PATH = "./CertificadosPlanta/ca.crt"
+CERT_PATH = "./CertificadosPlanta/certificate.pem.crt"
+KEY_PATH = "./CertificadosPlanta/private.pem.key"
 
 arduino = serial.Serial(DEVICE, BAUD)
 
@@ -32,23 +40,24 @@ def com_serial():
     # while True:
     # N_REQ - 4 bytes
     arduino.write(frame.n_req)
-    time.sleep(0.5)
+    time.sleep(1)
 
     # cmd - 1 byte (54 ou 48)
     arduino.write(frame.cmd)
-    time.sleep(0.5)
+    time.sleep(1)
 
     # data - 4 bytes
     arduino.write(frame.data)
-    time.sleep(0.5)
+    time.sleep(1)
 
     # checksum - 2 bytes
     arduino.write(frame.checksum)
-    time.sleep(0.5)
+    time.sleep(1)
+    # time.sleep(1)
 
     # endframe
     arduino.write(ENDFRAME)
-    time.sleep(0.5)
+    time.sleep(2)
 
     recived_data = arduino.read(11).hex()
     # RECIVED_DATA = arduino.readline()
@@ -97,10 +106,32 @@ def ordered_data(recived_data):
     return n_req_order, cmd_order, data_order, check_order
 
 
+'''
+    Funções comunicação MQTT
+'''
+
+
+def on_connect(client, userdata, flags, rc):
+    print("Connection returned result: " + str(rc))
+
+
+def on_message(client, userdata, msg):
+    print(msg.topic+" "+str(msg.payload))
+
+
 if __name__ == "__main__":
+    client = paho.Client()
+    client.on_connect = on_connect
+    client.on_message = on_message
+
+    client.tls_set(CA_PATH, certfile=CERT_PATH,
+                   keyfile=KEY_PATH,
+                   cert_reqs=ssl.CERT_REQUIRED,
+                   tls_version=ssl.PROTOCOL_TLSv1_2,
+                   ciphers=None)
+
     while True:
         n_req = hex(random_number())
-        #mudar aqui
         cmd = hex(HUMIDITY)
         data = hex(0)
         checksum = checksum_calc(n_req, cmd, data)
@@ -124,14 +155,17 @@ if __name__ == "__main__":
         # print(check_order, checksum_recived)
 
         mesure_float = struct.pack('>I', int(data_order, 16))
+        value = struct.unpack('>f', mesure_float)[0]
 
         if (checksum_recived == check_order):
+            client.connect(AWS_HOST, AWS_PORT, keepalive=60)
             if(cmd == hex(TEMPERATURE)):
-                print('Temperatura: {} °C "'.format(
-                    struct.unpack('>f', mesure_float)[0]))
+                print('Temperatura: {} °C "'.format(value))
+                client.publish(
+                    "monitoramentoPlanta/temperatura", value, qos=0)
             elif (cmd == hex(HUMIDITY)):
-                print('Umidade: {} % "'.format(
-                    struct.unpack('>f', mesure_float)[0]))
+                print('Umidade: {} % "'.format(value))
+                client.publish("monitoramentoPlanta/umidade", value, qos=0)
             else:
                 print('Comando não encontrado')
         else:
