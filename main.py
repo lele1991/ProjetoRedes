@@ -114,32 +114,16 @@ def ordered_data(recived_data):
 '''
     Funções comunicação MQTT
 '''
-
-
 def on_connect(client, userdata, flags, rc):
     print("Connection returned result: " + str(rc))
 
-
 def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
-    #The message to be encrypted must be in bytes
-    mesg = b'msg'
-    encrypted_msg = CIPHER.encrypt(mesg)
     
-    if msg.payload == encrypted_msg:
-        print("Mensagem publicada e recebida são as mesmas")
-    #convert the decrypted byte message to a UTF-8 string as normal
-    decrypted_msg = CIPHER.decrypt(msg.payload)
-    print("Mensagem recebida", str(decrypted_msg.decode("utf-8"))
-    
-
-
 if __name__ == "__main__":
     client = paho.Client()
     client.on_connect = on_connect
     client.on_message = on_message
-    #create a UTF-8 encoded string to pass as the message payload to the MQTT publish method
-    out_msg = encrypted_msg.decode()
 
     client.tls_set(CA_PATH, certfile=CERT_PATH,
                    keyfile=KEY_PATH,
