@@ -8,11 +8,6 @@ import struct
 import paho.mqtt.client as paho
 import ssl
 
-#create an encryption key
-from cryptography.fernet import Fernet
-KEY_CYPHER = Fernet.generate_key()
-CIPHER = Fernet(KEY_CYPHER)
-
 
 #DEVICE = '/dev/ttyUSB0'
 DEVICE = '/dev/ttyACM0'
