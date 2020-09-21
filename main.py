@@ -124,7 +124,7 @@ if __name__ == "__main__":
                    keyfile=KEY_PATH,
                    cert_reqs=ssl.CERT_REQUIRED,
                    tls_version=ssl.PROTOCOL_TLSv1_2,
-                   ciphers = encrypted_msg)
+                   ciphers = None)
 
     while True:
         n_req = hex(random_number())
