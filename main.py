@@ -163,7 +163,7 @@ def publish_data(client, ret, cmd):
             #     "tipo": "temperatura",
             #     "valor": value
             # }
-            client.publish("monitoramentoPlanta/umidade", ret, qos=0)
+            client.publish("monitoramentoPlanta/temperatura", ret, qos=0)
         elif (cmd == HUMIDITY):
             print('Umidade: {} % '.format(ret))
             # data = {
