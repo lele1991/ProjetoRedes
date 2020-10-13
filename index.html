@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+  </head>
+  <body>
+    <h1> PROJETO DE REDES DE COMPUTADORES </h1> 
+    <img src="https://www.iconfinder.com/data/icons/freecns-cumulus/32/519929-27_Cloud-512.png" style="width:15%">
+    <h2> temperatura: </h2>  
+    <p id="temperatura" ></p>
+    <h2> umidade: </h2>  
+    <p id="umidade" ></p>
+    //cdn - busca o socket.io e jquery - bibilioteca
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function () {
+        var socket = io();
+        //cira sockets em cima das variáveis tem/umi
+        socket.on('temperatura', function(msg){
+        //socket interno que faz link frontend e backend
+          $('#temperatura').html($('<li>').text(msg));
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+        socket.on('umidade', function(msg){
+          $('#umidade').html($('<li>').text(msg));
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+      });
+    </script>
+  </body>
+</html>
